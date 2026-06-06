@@ -1,0 +1,190 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>FUTSTORE — Camisetas de Futebol</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow:wght@400;600;700&display=swap"
+      rel="stylesheet"
+    />
+  <link rel="stylesheet" href="style.css" />
+  <script type="module" src="script.js" defer></script>
+</head>
+  <body>
+    <!-- LOGIN -->
+    <div id="loginScreen" style="display: flex">
+      <div class="login-box">
+        <div class="login-logo">FUT<span>STORE</span></div>
+        <div class="login-sub">⚽ Camisetas de futebol oficiais</div>
+        <button class="btn-google" onclick="loginGoogle()">
+          <svg width="20" height="20" viewBox="0 0 48 48">
+            <path
+              fill="#EA4335"
+              d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"
+            />
+            <path
+              fill="#4285F4"
+              d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"
+            />
+            <path
+              fill="#FBBC05"
+              d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"
+            />
+            <path
+              fill="#34A853"
+              d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.18 1.48-4.97 2.31-8.16 2.31-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"
+            />
+          </svg>
+          Entrar com Google
+        </button>
+        <div class="divider">ou entre com email e senha</div>
+        <div class="field">
+          <label>Email</label
+          ><input type="email" id="lEmail" placeholder="seu@email.com" />
+        </div>
+        <div class="field">
+          <label>Senha</label
+          ><input type="password" id="lPass" placeholder="••••••••" />
+        </div>
+        <button class="btn-login" onclick="loginEmail()">ENTRAR</button>
+        <div id="loginError"></div>
+      </div>
+    </div>
+
+    <!-- APP -->
+    <div id="appScreen" style="display: none">
+      <header>
+        <a href="#" class="logo">FUT<span>STORE</span></a>
+        <div class="header-right">
+          <div class="user-info">
+            <span id="userEmail"></span>
+            <span id="userBadge" class="role-badge"></span>
+          </div>
+          <button class="btn-logout" onclick="logout()">Sair</button>
+        </div>
+      </header>
+
+      <div class="hero">
+        <h1>AS MELHORES<br /><em>CAMISETAS</em></h1>
+        <p>
+          ⚽ Coleção oficial · Entrega para todo o Brasil · Pague com Mercado
+          Pago
+        </p>
+      </div>
+
+      <div class="admin-bar" id="adminBar" style="display: none">
+        <span>👑 Painel Admin</span>
+        <button class="btn-admin" onclick="openModal()">
+          + Adicionar Produto
+        </button>
+      </div>
+
+      <div class="filters">
+        <button class="filter-chip active" onclick="filterCat('todos', this)">
+          Todos
+        </button>
+        <button class="filter-chip" onclick="filterCat('nacional', this)">
+          Nacional
+        </button>
+        <button class="filter-chip" onclick="filterCat('internacional', this)">
+          Internacional
+        </button>
+        <button class="filter-chip" onclick="filterCat('retro', this)">
+          Retrô
+        </button>
+        <button class="filter-chip" onclick="filterCat('selecao', this)">
+          Seleção
+        </button>
+        <input
+          class="search-input"
+          type="text"
+          placeholder="🔍 Buscar camiseta..."
+          oninput="searchProducts(this.value)"
+        />
+      </div>
+
+      <main class="products-section">
+        <div class="section-title">
+          CATÁLOGO <span id="countLabel">0 produtos</span>
+        </div>
+        <div class="grid" id="grid">
+          <div class="empty">
+            <span class="big">⏳</span>
+            <h3>Carregando...</h3>
+          </div>
+        </div>
+      </main>
+
+      <footer>© 2025 FUTSTORE — Pagamentos via Mercado Pago</footer>
+
+      <div class="overlay" id="overlay" onclick="closeModalOutside(event)">
+        <div class="modal">
+          <button class="close-btn" onclick="closeModal()">✕</button>
+          <h2 id="modalTitle">Novo Produto</h2>
+          <div class="field">
+            <label>Título *</label
+            ><input
+              type="text"
+              id="fTitulo"
+              placeholder="Ex: Flamengo 2025 — Home"
+            />
+          </div>
+          <div class="field">
+            <label>Descrição</label
+            ><textarea
+              id="fDesc"
+              placeholder="Tecido, tamanho, detalhes..."
+            ></textarea>
+          </div>
+          <div class="row-2">
+            <div class="field">
+              <label>Preço (R$) *</label
+              ><input
+                type="number"
+                id="fPreco"
+                placeholder="159.90"
+                step="0.01"
+                min="0"
+              />
+            </div>
+            <div class="field">
+              <label>Categoria</label>
+              <select id="fCat">
+                <option value="nacional">Nacional</option>
+                <option value="internacional">Internacional</option>
+                <option value="retro">Retrô</option>
+                <option value="selecao">Seleção</option>
+              </select>
+            </div>
+          </div>
+          <div class="field">
+            <label>URL da Imagem</label>
+            <input
+              type="text"
+              id="fImg"
+              placeholder="https://..."
+              oninput="previewImg(this.value)"
+            />
+            <div class="img-preview" id="imgPreview">
+              <span>Sem imagem</span>
+            </div>
+          </div>
+          <div class="field">
+            <label>🔗 Link Mercado Pago *</label
+            ><input type="text" id="fLink" placeholder="https://mpago.la/..." />
+          </div>
+          <div class="field">
+            <label>Badge (opcional)</label
+            ><input type="text" id="fBadge" placeholder="NOVO, OFERTA..." />
+          </div>
+          <button class="btn-salvar" onclick="saveProduct()">
+            SALVAR PRODUTO
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div class="notif" id="notif"></div>
+  </body>
+</html>
