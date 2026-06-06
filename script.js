@@ -226,7 +226,7 @@ window.render = function () {
         <div class="card-desc">${esc(p.desc) || "Sem descrição."}</div>
         <div class="card-footer">
           <span class="card-price">R$ ${formatPrice(p.preco)}</span>
-          <a class="btn-buy" href="${esc(p.link)}" target="_blank" rel="noopener">🛒 COMPRAR</a>
+          <button class="btn-buy" onclick="comprarProduto('${p.id}')">🛒 COMPRAR</button>
         </div>
       </div>
     </div>`,
@@ -310,3 +310,57 @@ document.addEventListener("DOMContentLoaded", () => {
     if (e.key === "Enter") loginEmail();
   });
 });
+
+let produtoAtual = null;
+
+window.comprarProduto = function (id) {
+  const produto = products.find((p) => p.id === id);
+
+  if (!produto) {
+    alert("Produto não encontrado.");
+    return;
+  }
+
+  produtoAtual = produto;
+
+  document.getElementById("produtoSelecionado").innerText =
+    `${produto.titulo} - R$ ${formatPrice(produto.preco)}`;
+
+  document.getElementById("modalPedido").style.display = "flex";
+};
+
+window.fecharModalPedido = function () {
+  document.getElementById("modalPedido").style.display = "none";
+};
+
+window.confirmarPedido = async function () {
+  const whatsapp = document.getElementById("clienteWhatsapp").value.trim();
+  const tamanho = document.getElementById("clienteTamanho").value;
+  const endereco = document.getElementById("clienteEndereco").value.trim();
+
+  if (!whatsapp || !tamanho || !endereco) {
+    alert("Preencha WhatsApp, tamanho e endereço antes de continuar.");
+    return;
+  }
+
+  try {
+    await emailjs.send("service_332mlam", "template_d2fvf3k", {
+      nome: currentUser?.displayName || "Cliente não informado",
+      email: currentUser?.email || "Email não informado",
+      telefone: whatsapp,
+      produto: produtoAtual.titulo,
+      preco: `R$ ${formatPrice(produtoAtual.preco)}`,
+      tamanho: tamanho,
+      endereco: endereco,
+      mensagem: `Cliente pediu: ${produtoAtual.titulo}`,
+    });
+
+    notify("📧 Pedido enviado! Abrindo pagamento...");
+  } catch (error) {
+    console.error("Erro EmailJS:", error);
+    notify("⚠️ Não consegui enviar o email, mas vou abrir o pagamento.");
+  }
+
+  fecharModalPedido();
+  window.open(produtoAtual.link, "_blank");
+};

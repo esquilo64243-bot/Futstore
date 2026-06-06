@@ -8,9 +8,17 @@
       href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow:wght@400;600;700&display=swap"
       rel="stylesheet"
     />
-  <link rel="stylesheet" href="style.css" />
-  <script type="module" src="script.js" defer></script>
-</head>
+    <link rel="stylesheet" href="style.css" />
+
+    <link rel="stylesheet" href="style.css" />
+
+    <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+    <script>
+      emailjs.init("DPQrpr9lB0AR_duex");
+    </script>
+
+    <script type="module" src="script.js" defer></script>
+  </head>
   <body>
     <!-- LOGIN -->
     <div id="loginScreen" style="display: flex">
@@ -186,5 +194,34 @@
     </div>
 
     <div class="notif" id="notif"></div>
+
+    <div id="modalPedido" class="modal-pedido">
+      <div class="modal-content">
+        <h2>Finalizar pedido</h2>
+
+        <p id="produtoSelecionado"></p>
+
+        <input type="text" id="clienteWhatsapp" placeholder="Seu WhatsApp" />
+
+        <select id="clienteTamanho">
+          <option value="">Escolha o tamanho</option>
+          <option value="P">P</option>
+          <option value="M">M</option>
+          <option value="G">G</option>
+          <option value="GG">GG</option>
+          <option value="XG">XG</option>
+        </select>
+
+        <textarea
+          id="clienteEndereco"
+          placeholder="Endereço completo"
+        ></textarea>
+
+        <div class="modal-buttons">
+          <button onclick="fecharModalPedido()">Cancelar</button>
+          <button onclick="confirmarPedido()">Continuar</button>
+        </div>
+      </div>
+    </div>
   </body>
 </html>
