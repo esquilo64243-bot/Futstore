@@ -334,33 +334,81 @@ window.fecharModalPedido = function () {
 };
 
 window.confirmarPedido = async function () {
+  const nome = document.getElementById("clienteNome").value.trim();
   const whatsapp = document.getElementById("clienteWhatsapp").value.trim();
   const tamanho = document.getElementById("clienteTamanho").value;
-  const endereco = document.getElementById("clienteEndereco").value.trim();
+  const cep = document.getElementById("clienteCep").value.trim();
+  const rua = document.getElementById("clienteRua").value.trim();
+  const numero = document.getElementById("clienteNumero").value.trim();
+  const bairro = document.getElementById("clienteBairro").value.trim();
+  const cidade = document.getElementById("clienteCidade").value.trim();
+  const estado = document.getElementById("clienteEstado").value.trim();
+  const complemento = document.getElementById("clienteComplemento").value.trim();
 
-  if (!whatsapp || !tamanho || !endereco) {
-    alert("Preencha WhatsApp, tamanho e endereço antes de continuar.");
+  if (!nome || !whatsapp || !tamanho || !cep || !rua || !numero || !bairro || !cidade || !estado) {
+    alert("Preencha nome, WhatsApp, tamanho e endereço completo.");
     return;
   }
 
+  const enderecoCompleto = `${rua}, ${numero} - ${bairro}, ${cidade}/${estado} - CEP: ${cep}${complemento ? " - Complemento: " + complemento : ""}`;
+
   try {
     await emailjs.send("service_332mlam", "template_d2fvf3k", {
-      nome: currentUser?.displayName || "Cliente não informado",
+      nome,
       email: currentUser?.email || "Email não informado",
       telefone: whatsapp,
       produto: produtoAtual.titulo,
       preco: `R$ ${formatPrice(produtoAtual.preco)}`,
-      tamanho: tamanho,
-      endereco: endereco,
-      mensagem: `Cliente pediu: ${produtoAtual.titulo}`,
+      tamanho,
+      endereco: enderecoCompleto,
+      mensagem: `Novo pedido demonstrativo recebido na Futstore.`,
     });
 
-    notify("📧 Pedido enviado! Abrindo pagamento...");
+    notify("📧 Email enviado para o vendedor e cliente!");
   } catch (error) {
     console.error("Erro EmailJS:", error);
-    notify("⚠️ Não consegui enviar o email, mas vou abrir o pagamento.");
+    notify("⚠️ Erro ao enviar email.");
   }
 
+  const aceitaDemo = confirm(
+    "⚠️ Este é um projeto demonstrativo de portfólio.\n\nNão realize pagamentos reais.\n\nDeseja abrir o Mercado Pago apenas para visualizar o fluxo?"
+  );
+
   fecharModalPedido();
-  window.open(produtoAtual.link, "_blank");
+
+  if (aceitaDemo) {
+    window.open(produtoAtual.link, "_blank");
+  } else {
+    notify("✅ Pedido demonstrativo finalizado.");
+  }
+};
+
+window.buscarCEP = async function () {
+  const cepInput = document.getElementById("clienteCep");
+  const cep = cepInput.value.replace(/\D/g, "");
+
+  if (cep.length !== 8) {
+    notify("⚠️ CEP inválido. Digite 8 números.");
+    return;
+  }
+
+  try {
+    const resposta = await fetch(`https://viacep.com.br/ws/${cep}/json/`);
+    const dados = await resposta.json();
+
+    if (dados.erro) {
+      notify("⚠️ CEP não encontrado.");
+      return;
+    }
+
+    document.getElementById("clienteRua").value = dados.logradouro || "";
+    document.getElementById("clienteBairro").value = dados.bairro || "";
+    document.getElementById("clienteCidade").value = dados.localidade || "";
+    document.getElementById("clienteEstado").value = dados.uf || "";
+
+    notify("📍 Endereço preenchido pelo CEP!");
+  } catch (error) {
+    console.error("Erro ao buscar CEP:", error);
+    notify("⚠️ Não consegui buscar o CEP.");
+  }
 };

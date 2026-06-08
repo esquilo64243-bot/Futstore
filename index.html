@@ -73,6 +73,12 @@
         </div>
       </header>
 
+      <div class="demo-alert">
+        ⚠️ <strong>Projeto demonstrativo:</strong> esta loja faz parte do
+        portfólio. Não realize pagamentos reais. O fluxo de compra existe apenas
+        para demonstração.
+      </div>
+
       <div class="hero">
         <h1>AS MELHORES<br /><em>CAMISETAS</em></h1>
         <p>
@@ -201,6 +207,15 @@
 
         <p id="produtoSelecionado"></p>
 
+        <div class="pedido-alert">
+          ⚠️ Projeto demonstrativo. Não realize pagamento real.
+        </div>
+
+        <input
+          type="text"
+          id="clienteNome"
+          placeholder="Como deseja ser chamado?"
+        />
         <input type="text" id="clienteWhatsapp" placeholder="Seu WhatsApp" />
 
         <select id="clienteTamanho">
@@ -212,9 +227,26 @@
           <option value="XG">XG</option>
         </select>
 
+        <input
+          type="text"
+          id="clienteCep"
+          placeholder="CEP"
+          maxlength="9"
+          onblur="buscarCEP()"
+        />
+        <input type="text" id="clienteRua" placeholder="Rua" />
+        <input type="text" id="clienteNumero" placeholder="Número" />
+        <input type="text" id="clienteBairro" placeholder="Bairro" />
+        <input type="text" id="clienteCidade" placeholder="Cidade" />
+        <input
+          type="text"
+          id="clienteEstado"
+          placeholder="Estado"
+          maxlength="2"
+        />
         <textarea
-          id="clienteEndereco"
-          placeholder="Endereço completo"
+          id="clienteComplemento"
+          placeholder="Complemento ou referência"
         ></textarea>
 
         <div class="modal-buttons">
