@@ -68,16 +68,24 @@
           <div class="user-info">
             <span id="userEmail"></span>
             <span id="userBadge" class="role-badge"></span>
+
+            <button class="btn-cart" onclick="abrirCarrinho()">
+              🛒 Carrinho <span id="cartCount">0</span>
+            </button>
           </div>
           <button class="btn-logout" onclick="logout()">Sair</button>
         </div>
       </header>
+
+      <!-- ALERTA DEMONSTRAÇÃO -->
 
       <div class="demo-alert">
         ⚠️ <strong>Projeto demonstrativo:</strong> esta loja faz parte do
         portfólio. Não realize pagamentos reais. O fluxo de compra existe apenas
         para demonstração.
       </div>
+
+      <!-- HERO / BANNER -->
 
       <div class="hero">
         <h1>AS MELHORES<br /><em>CAMISETAS</em></h1>
@@ -87,12 +95,16 @@
         </p>
       </div>
 
+      <!-- PAINEL ADMIN -->
+
       <div class="admin-bar" id="adminBar" style="display: none">
         <span>👑 Painel Admin</span>
         <button class="btn-admin" onclick="openModal()">
           + Adicionar Produto
         </button>
       </div>
+
+      <!-- FILTROS E PESQUISA -->
 
       <div class="filters">
         <button class="filter-chip active" onclick="filterCat('todos', this)">
@@ -130,7 +142,11 @@
         </div>
       </main>
 
+      <!-- RODAPÉ -->
+
       <footer>© 2025 FUTSTORE — Pagamentos via Mercado Pago</footer>
+
+      <!-- MODAL ADMIN PRODUTO -->
 
       <div class="overlay" id="overlay" onclick="closeModalOutside(event)">
         <div class="modal">
@@ -201,6 +217,8 @@
 
     <div class="notif" id="notif"></div>
 
+    <!-- MODAL FINALIZAR PEDIDO -->
+
     <div id="modalPedido" class="modal-pedido">
       <div class="modal-content">
         <h2>Finalizar pedido</h2>
@@ -252,6 +270,49 @@
         <div class="modal-buttons">
           <button onclick="fecharModalPedido()">Cancelar</button>
           <button onclick="confirmarPedido()">Continuar</button>
+        </div>
+      </div>
+    </div>
+
+    <div id="cartModal" class="cart-modal">
+      <div class="cart-box">
+        <div class="cart-header">
+          <h2>Meu carrinho</h2>
+          <button onclick="fecharCarrinho()">✕</button>
+        </div>
+
+        <div id="cartItems"></div>
+
+        <div class="cart-total">
+          Total: <strong id="cartTotal">R$ 0,00</strong>
+        </div>
+
+        <button class="btn-finalizar" onclick="abrirPedidoCarrinho()">
+          Finalizar pedido
+        </button>
+      </div>
+    </div>
+
+    <!-- MODAL CARRINHO -->
+
+    <div id="modalTamanhoCarrinho" class="modal-size">
+      <div class="modal-size-content">
+        <h2>Escolha o tamanho</h2>
+
+        <p id="produtoTamanhoNome"></p>
+
+        <select id="tamanhoCarrinho">
+          <option value="">Selecione o tamanho</option>
+          <option value="P">P</option>
+          <option value="M">M</option>
+          <option value="G">G</option>
+          <option value="GG">GG</option>
+          <option value="XG">XG</option>
+        </select>
+
+        <div class="modal-size-buttons">
+          <button onclick="fecharModalTamanho()">Cancelar</button>
+          <button onclick="confirmarAdicionarCarrinho()">Adicionar</button>
         </div>
       </div>
     </div>

@@ -1,3 +1,7 @@
+/* ==========================================
+   FIREBASE
+========================================== */
+
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
 import {
   getAuth,
@@ -16,6 +20,10 @@ import {
   deleteDoc,
   doc,
 } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+/* ==========================================
+   AUTENTICAÇÃO
+========================================== */
 
 const firebaseConfig = {
   apiKey: "AIzaSyDaX8q8oi79CfjB5zf4R92LomOxtU4q2Qc",
@@ -39,6 +47,10 @@ let products = [];
 let editingId = null;
 let currentCat = "todos";
 let currentSearch = "";
+
+/* ==========================================
+   PRODUTOS
+========================================== */
 
 onAuthStateChanged(auth, async (user) => {
   currentUser = user;
@@ -226,13 +238,26 @@ window.render = function () {
         <div class="card-desc">${esc(p.desc) || "Sem descrição."}</div>
         <div class="card-footer">
           <span class="card-price">R$ ${formatPrice(p.preco)}</span>
-          <button class="btn-buy" onclick="comprarProduto('${p.id}')">🛒 COMPRAR</button>
+          <div class="card-buttons">
+            <button class="btn-cart-card"
+                    onclick="adicionarCarrinho('${p.id}')">
+              🛒
+            </button>
+
+            <button class="btn-buy"
+                    onclick="comprarProduto('${p.id}')">
+              Comprar
+            </button>
+          </div>
         </div>
       </div>
     </div>`,
     )
     .join("");
 };
+
+/* Modal Produto */
+
 
 window.openModal = function (id) {
   editingId = id || null;
@@ -275,6 +300,9 @@ window.previewImg = (url) => {
       ? `<img src="${url}" alt="preview">`
       : "<span>Sem imagem</span>";
 };
+
+/* Busca e Filtros */
+
 window.filterCat = (cat, btn) => {
   currentCat = cat;
   document
@@ -312,6 +340,8 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 
 let produtoAtual = null;
+
+/* Pedido */
 
 window.comprarProduto = function (id) {
   const produto = products.find((p) => p.id === id);
@@ -383,6 +413,8 @@ window.confirmarPedido = async function () {
   }
 };
 
+/* CEP */
+
 window.buscarCEP = async function () {
   const cepInput = document.getElementById("clienteCep");
   const cep = cepInput.value.replace(/\D/g, "");
@@ -411,4 +443,175 @@ window.buscarCEP = async function () {
     console.error("Erro ao buscar CEP:", error);
     notify("⚠️ Não consegui buscar o CEP.");
   }
+};
+
+/* Carrinho */
+
+let carrinho = JSON.parse(localStorage.getItem("futstore_carrinho") || "[]");
+
+function salvarCarrinho() {
+  localStorage.setItem("futstore_carrinho", JSON.stringify(carrinho));
+  atualizarCarrinho();
+}
+
+function atualizarCarrinho() {
+  const count = carrinho.reduce((total, item) => total + item.qtd, 0);
+  const total = carrinho.reduce((soma, item) => soma + item.preco * item.qtd, 0);
+
+  document.getElementById("cartCount").textContent = count;
+  document.getElementById("cartTotal").textContent = `R$ ${formatPrice(total)}`;
+
+  const cartItems = document.getElementById("cartItems");
+
+  if (!carrinho.length) {
+    cartItems.innerHTML = `<p class="cart-empty">Seu carrinho está vazio.</p>`;
+    return;
+  }
+
+  cartItems.innerHTML = carrinho
+    .map(
+      (item) => `
+      <div class="cart-item">
+        ${
+          item.img
+            ? `<img src="${esc(item.img)}" alt="${esc(item.titulo)}">`
+            : `<div class="cart-img-placeholder">👕</div>`
+        }
+
+        <div class="cart-info">
+          <strong>${esc(item.titulo)}</strong>
+          <small>Tamanho: ${esc(item.tamanho || "Não informado")}</small>
+          <span>R$ ${formatPrice(item.preco)}</span>
+
+          <div class="cart-qtd">
+            <button onclick="alterarQtd('${item.id}', -1)">−</button>
+            <span>${item.qtd}</span>
+            <button onclick="alterarQtd('${item.id}', 1)">+</button>
+          </div>
+        </div>
+
+        <button class="cart-remove" onclick="removerCarrinho('${item.id}')">🗑️</button>
+      </div>
+    `,
+    )
+    .join("");
+}
+
+window.alterarQtd = function (id, valor) {
+  const item = carrinho.find((i) => i.id === id);
+  if (!item) return;
+
+  item.qtd += valor;
+
+  if (item.qtd <= 0) {
+    carrinho = carrinho.filter((i) => i.id !== id);
+  }
+
+  salvarCarrinho();
+};
+
+window.removerCarrinho = function (id) {
+  carrinho = carrinho.filter((i) => i.id !== id);
+  salvarCarrinho();
+};
+
+window.abrirCarrinho = function () {
+  atualizarCarrinho();
+  document.getElementById("cartModal").style.display = "flex";
+};
+
+window.fecharCarrinho = function () {
+  document.getElementById("cartModal").style.display = "none";
+};
+
+window.abrirPedidoCarrinho = function () {
+  if (!carrinho.length) {
+    alert("Seu carrinho está vazio.");
+    return;
+  }
+
+  const resumo = carrinho
+    .map((item) => `${item.qtd}x ${item.titulo} - R$ ${formatPrice(item.preco * item.qtd)}`)
+    .join("\n");
+
+  const total = carrinho.reduce((soma, item) => soma + item.preco * item.qtd, 0);
+
+  produtoAtual = {
+    titulo: resumo,
+    preco: total,
+    link: carrinho[0].link || products.find((p) => p.id === carrinho[0].id)?.link || "#",
+  };
+
+  document.getElementById("produtoSelecionado").innerText =
+    `Pedido com ${carrinho.length} item(ns)\nTotal: R$ ${formatPrice(total)}`;
+
+  fecharCarrinho();
+  document.getElementById("modalPedido").style.display = "flex";
+};
+
+document.addEventListener("DOMContentLoaded", atualizarCarrinho);
+
+/* Tamanho */
+
+let produtoCarrinhoTemp = null;
+
+window.adicionarCarrinho = function (id) {
+  const produto = products.find((p) => p.id === id);
+
+  if (!produto) {
+    alert("Produto não encontrado.");
+    return;
+  }
+
+  produtoCarrinhoTemp = produto;
+
+  document.getElementById("produtoTamanhoNome").innerText =
+    `${produto.titulo} - R$ ${formatPrice(produto.preco)}`;
+
+  document.getElementById("tamanhoCarrinho").value = "";
+  document.getElementById("modalTamanhoCarrinho").style.display = "flex";
+};
+
+window.fecharModalTamanho = function () {
+  document.getElementById("modalTamanhoCarrinho").style.display = "none";
+  produtoCarrinhoTemp = null;
+};
+
+window.confirmarAdicionarCarrinho = function () {
+  const tamanho = document.getElementById("tamanhoCarrinho").value;
+
+  if (!tamanho) {
+    alert("Escolha um tamanho.");
+    return;
+  }
+
+  const produto = produtoCarrinhoTemp;
+
+  if (!produto) {
+    alert("Produto não encontrado.");
+    return;
+  }
+
+  const item = carrinho.find(
+    (i) => i.id === produto.id && i.tamanho === tamanho
+  );
+
+  if (item) {
+    item.qtd++;
+  } else {
+    carrinho.push({
+      id: produto.id,
+      titulo: produto.titulo,
+      preco: produto.preco,
+      img: produto.img || "",
+      link: produto.link || "",
+      tamanho,
+      qtd: 1,
+    });
+  }
+
+  salvarCarrinho();
+  fecharModalTamanho();
+
+  notify(`🛒 ${produto.titulo} tamanho ${tamanho} adicionado!`);
 };
